@@ -40,8 +40,8 @@ class ReaderFiles
         void read_files()
         {
             enum type_files { edges = 0, circles = 1, feat = 2, egofeat = 3, featnames = 4};
-            int complete_path_size = 66;
-            int lines, files = 0;
+            int complete_path_size = 94;
+            int lines, files = 0, users = 0;
             string line, name_file, name, type_file;
             set<string> vertices;
             for (auto path: Paths)
@@ -65,20 +65,25 @@ class ReaderFiles
                         continue;
                     }
                 }
+                if (type_file == "edges")
+                {
+                    users = users + 1;
+                }
+                
                 files = files + 1;
                 cout<<path<<endl;
                 cout<<"lineas: "<<lines<<endl;
-
                 cout<<name<<" "<<type_file<<endl;
-
                 ReadFile.close();
             }
             cout<<"Se leyo "<<files<<" archivos."<<endl;
+            cout<<"Existen "<<users<<" usuarios encontrados."<<endl;
             cout<<"Existen "<<vertices.size()<<" nodos."<<endl;
+            std::cin.ignore();
         }
 };
 
-
+//C:\Users\Augusto Valdez\Documents\My Data\Projects\UCB\Analisis de Algoritmos\Proyecto\gplus
 int main(){
     ReaderFiles reader;
     reader.get_files("list.txt");
