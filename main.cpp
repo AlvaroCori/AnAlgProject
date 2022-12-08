@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <cstring>
 using namespace std;
 class Graph
 {
@@ -37,13 +38,62 @@ class ReaderFiles
             }
             return sub_string;
         }
-        void read_files()
+        vector<string> split(string line,char separator)
+        {
+            vector<string> elements;
+            string element = "";
+            for (int i = 0; i<line.length();i++)
+            {
+                if (line[i] == separator)
+                {
+                    elements.push_back(element);
+                    element = "";
+                }
+                else{
+                    element = element + line[i];
+                }
+            }
+            return elements;
+
+        }
+        vector<string> split(string line)
+        {
+            vector<string> elements;
+            string element = "";
+            for (int i = 0; i<line.length();i++)
+            {
+                if (isalpha(int(line[i])) == false && isdigit(int(line[i]))==false)
+                {
+                    elements.push_back(element);
+                    element = "";
+                }
+                else{
+                    element = element + line[i];
+                }
+            }
+            return elements;
+
+        }
+        set<string> join_sets(set<string> set_1, set<string> set_2)
+        {
+            for (auto element: set_2)
+            {
+                set_1.insert(element);
+            }
+            return set_1;
+        }
+        void count_users()
         {
             enum type_files { edges = 0, circles = 1, feat = 2, egofeat = 3, featnames = 4};
             int complete_path_size = 66;
             int lines, files = 0;
             string line, name_file, name, type_file;
+            set<string> vertices_files;
+            set<string> vertices_edges;
+            set<string> vertices_circles;
+            set<string> vertices_feat;
             set<string> vertices;
+            int max = 0;
             for (auto path: Paths)
             {
                 ifstream ReadFile(path);
@@ -51,8 +101,7 @@ class ReaderFiles
                 name_file = path.substr(complete_path_size-1, path.length());
                 name = get_substring(name_file, '.', 0);
                 type_file = path.substr(complete_path_size+name.length(), path.length()-1);
-                vertices.insert(name);
-
+                vertices_files.insert(name);
                 while (getline(ReadFile, line)) {
                     lines = lines + 1;
                     if (type_file == "edges")
@@ -60,21 +109,45 @@ class ReaderFiles
                         string idx, idy;
                         idx = get_substring(line, ' ', 0);
                         idy = get_substring(line, ' ', idx.length()+1);
-                        vertices.insert(idx);
-                        vertices.insert(idy);
+                        vertices_edges.insert(idx);
+                        vertices_edges.insert(idy);
+                        continue;
+                    }
+                    if (type_file == "circles")
+                    {
+                        vector<string> values = split(line);
+                        for (int i = 1; i < values.size() ; i++)
+                        {
+                            vertices_circles.insert(values[i]);
+                        }
+                        continue;
+                    }
+                    if (type_file == "feat")
+                    {
+                        vector<string> values = split(line, ' ');
+                        vertices_feat.insert(values[0]);
                         continue;
                     }
                 }
                 files = files + 1;
+                /*
                 cout<<path<<endl;
                 cout<<"lineas: "<<lines<<endl;
-
+                */
                 cout<<name<<" "<<type_file<<endl;
 
                 ReadFile.close();
             }
+            vertices = join_sets(vertices, vertices_files);
+            vertices = join_sets(vertices, vertices_edges);
+            vertices = join_sets(vertices, vertices_circles);
+            vertices = join_sets(vertices, vertices_feat);
             cout<<"Se leyo "<<files<<" archivos."<<endl;
-            cout<<"Existen "<<vertices.size()<<" nodos."<<endl;
+            cout<<"Existen "<<vertices_files.size()<<" usuarios en los nombres de archivos."<<endl;
+            cout<<"Existen "<<vertices_edges.size()<<" usuarios en los archivos edge."<<endl;
+            cout<<"Existen "<<vertices_circles.size()<<" usuarios en los archivos circles."<<endl;
+            cout<<"Existen "<<vertices_feat.size()<<" usuarios en los archivos feat."<<endl;
+            cout<<"Existen "<<vertices.size()<<" en total de usuarios."<<endl;
         }
 };
 
@@ -82,7 +155,7 @@ class ReaderFiles
 int main(){
     ReaderFiles reader;
     reader.get_files("list.txt");
-    reader.read_files();
+    reader.count_users();
     return 0;
 }
 
@@ -90,3 +163,5 @@ int main(){
 ///132 nodos segun el nombre de los archivos.
 
 //Existen 102119 nodos leyendo los nodos de los archivos edges
+
+//La linea mas larga es 10989 en circles
