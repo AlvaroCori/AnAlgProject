@@ -11,7 +11,7 @@ class Node(object):
 
 class Edge(object):
     def __init__(self, src, dest):
-        '''assume src and dest are nodes '''
+        '''assume src and dest are strings '''
         self.src = src
         self.dest = dest
 
@@ -52,6 +52,7 @@ class Digraph(object):
                 src = node
             if(node.get_id() == destId):
                 dest = node
+            
 
         self.edges[src].append(dest)
 
