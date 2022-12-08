@@ -26,10 +26,11 @@ class Graph:
         self.numVertices = 0
         
     def addVertex(self, key):
-        self.numVertices += 1
-        newVertex = Vertex(key)
-        self.vertList[key] = newVertex
-        return newVertex  
+        if(key not in self.vertList or len(self.vertList) == 0):
+            self.numVertices += 1
+            newVertex = Vertex(key)
+            self.vertList[key] = newVertex
+            return newVertex  
       
     def getVertex(self, key):
         return self.vertList.get(key)
@@ -64,7 +65,7 @@ class Graph:
 if __name__ == '__main__' :    
     # create the graph
     graph = Graph()
-    #comprobante = []
+    comprobante = []
     reducido = []
     cont = 0
     with open('list.txt') as f:
@@ -73,7 +74,7 @@ if __name__ == '__main__' :
         if '.edges' in line:
             originId = line.split('\\').pop().split('.').pop(0)
             
-            #comprobante.append(originId)
+            comprobante.append(originId)
             graph.addVertex(originId)
             with open(line[:-1]) as f2:
                 allData = f2.readlines()
@@ -82,33 +83,26 @@ if __name__ == '__main__' :
                 idX = relationLine[0]
                 idY = relationLine[1]
                 
-                #comprobante.append(idX)
-                #comprobante.append(idY)
-                
-                #graph.add_node(idX)
-                #graph.add_node(idY)
+                comprobante.append(idX)
+                comprobante.append(idY)
 
                 graph.addEdge(originId, idX)
                 graph.addEdge(idX, idY)
 
-                
-                #reducido = set(comprobante)
-                #if(cont == 10000):
-                    #break
             cont = cont + 1
             print('Leido el archivo numero', cont)
             print('The nodes and edges in the graph are:')
             print(graph.getCount())
-            #print('The nodes and edges in the list are:')
-            #print(len(reducido))
-        #if(cont == 10000):
-            #break
+        #print('The nodes and edges in the list are:')
+        #print(len(reducido))
+        comprobante = list(set(comprobante))
+
 
     # create the nodes
     #print('The nodes and edges in the graph are:')
     #print(graph.get_number_of_nodes())
-    #print('The nodes and edges in the list are:')
-    #print(len(reducido))
+    print('The nodes and edges in the list are:')
+    print(len(comprobante))
     #graph.printNodes()
     ##print(graph)
     #print()
