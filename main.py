@@ -52,8 +52,8 @@ class Digraph(object):
                 src = node
             if(node.get_id() == destId):
                 dest = node
-            
-
+            if(type(src) == type(dest) == Node):
+                break
         self.edges[src].append(dest)
 
     def children_of(self, node):
@@ -80,7 +80,7 @@ class Digraph(object):
 if __name__ == '__main__' :    
     # create the graph
     graph = Digraph()
-    comprobante = []
+    #comprobante = []
     reducido = []
     cont = 0
     with open('list.txt') as f:
@@ -89,7 +89,7 @@ if __name__ == '__main__' :
         if '.edges' in line:
             originId = line.split('\\').pop().split('.').pop(0)
             
-            comprobante.append(originId)
+            #comprobante.append(originId)
             graph.add_node(originId)
             with open(line[:-1]) as f2:
                 allData = f2.readlines()
@@ -98,8 +98,8 @@ if __name__ == '__main__' :
                 idX = relationLine[0]
                 idY = relationLine[1]
                 
-                comprobante.append(idX)
-                comprobante.append(idY)
+                #comprobante.append(idX)
+                #comprobante.append(idY)
                 
                 graph.add_node(idX)
                 graph.add_node(idY)
@@ -110,29 +110,16 @@ if __name__ == '__main__' :
                 graph.add_edge(edgeOX)
                 graph.add_edge(edgeXY)
 
-                cont = cont + 1
-                reducido = set(comprobante)
-                if(cont == 166901):
-                    break
+                
+                #reducido = set(comprobante)
+                #if(cont == 10000):
+                    #break
+            cont = cont + 1
             print('Leido el archivo numero', cont)
-        if(cont == 166901):
-            break
-
-    
+        #if(cont == 10000):
+            #break
 
     # create the nodes
-    ##node_a = Node('A')
-    
-    # add the nodes to the graph
-    ##graph.add_node(node_a)
-   
-    # then create the edges
-    ##edge_ab = Edge(node_a, node_b)
-   
-    # add the edges to the graph
-    ##graph.add_edge(edge_ab)
-   
-    # print the graph
     print('The nodes and edges in the graph are:')
     print(graph.get_number_of_nodes())
     print('The nodes and edges in the list are:')
