@@ -1,3 +1,4 @@
+import os
 class Vertex:
   
     def __init__(self, key):
@@ -106,106 +107,158 @@ if __name__ == '__main__' :
     comprobante = []
     reducido = []
     cont = 0
-    with open('list.txt') as f:
-        lines = f.readlines()
-    for line in lines:
-        originId = line.split('\\').pop().split('.').pop(0)
-        if '.circles' in line:
-            graph.addVertex(originId)
-            with open(line[:-1]) as f2:
-                allData = f2.readlines()
-            circles = {}
-            for data in allData:
-                circlesLine = data.strip().split()
-                id = circlesLine[0]
-                users = circlesLine[1:]
-                circles[id] = users
-            graph.setUserCircles(originId, circles)
+    consoleOption = -1
+    while(consoleOption != 9):
+        os.system ("cls") 
+        print('Que dese hacer?')
+        print('================================')
+        print('0. Cargar grafo')
+        print('1. Respuesta a la pregunta 1')
+        print('2. Respuesta a la pregunta 2')
+        print('3. Respuesta a la pregunta 3')
+        print('4. Respuesta a la pregunta 4')
+        print('5. Respuesta a la pregunta 5')
+        print('6. Respuesta a la pregunta 6')
+        print('7. Otros datos')
+        print('9. Salir')
+        consoleOption = int(input("Opcion: "))
+        if consoleOption == 0:
+            with open('list.txt') as f:
+                lines = f.readlines()
+            for line in lines:
+                originId = line.split('\\').pop().split('.').pop(0)
+                if '.circles' in line:
+                    graph.addVertex(originId)
+                    with open(line[:-1]) as f2:
+                        allData = f2.readlines()
+                    circles = {}
+                    for data in allData:
+                        circlesLine = data.strip().split()
+                        id = circlesLine[0]
+                        users = circlesLine[1:]
+                        circles[id] = users
+                    graph.setUserCircles(originId, circles)
+                    
+
+                if '.edges' in line:
+                    comprobante.append(originId)
+                    with open(line[:-1]) as f2:
+                        allData = f2.readlines()
+                    for data in allData:
+                        relationLine = data.split()
+                        idX = relationLine[0]
+                        idY = relationLine[1]
+                        
+                        comprobante.append(idX)
+                        comprobante.append(idY)
+
+                        graph.addEdge(originId, idX)
+                        graph.addEdge(idX, idY)
+
+                    cont = cont + 1
+                    print('Leido el conjunto de archivos numero: ', cont)
+                comprobante = list(set(comprobante))
+                if '.egofeat' in line:
+                    with open(line[:-1]) as f2:
+                        allData = f2.readlines()
+                        for data in allData:
+                            dataLine = data.strip().split()
+                            features = []
+                            posicion = -1
+                            try:
+                                while True:
+                                    posicion = dataLine.index('1', posicion + 1)
+                                    features.append(posicion)
+                            except:
+                                pass
+                            graph.setVertFeatures(originId, features)
+                if line[:-1].endswith('.feat'):
+                    idsFeat = []
+                    idsFeat.append(originId)
+                    with open(line[:-1]) as f2:
+                        allData = f2.readlines()
+                        for data in allData:
+                            dataLine = data.strip().split()
+                            id = dataLine[0]
+                            if(graph.__contains__(id)):
+                                idsFeat.append(id)
+                            dataFeatures = dataLine[1:]
+                            features = []
+                            posicion = -1
+                            try:
+                                while True:
+                                    posicion = dataFeatures.index('1', posicion + 1)
+                                    features.append(posicion)
+                            except:
+                                pass
+                            graph.setVertFeatures(id, features)
+                if 'featnames' in line:
+                    with open(line[:-1]) as f2:
+                        allData = f2.readlines()
+                        dictPostFeatNames = {}
+                        for data in allData:
+                            dataLine = data.strip().split()
+                            key = int(dataLine[0])
+                            feature = dataLine[1]
+                            dictPostFeatNames[key] = feature
+                        for id in idsFeat:
+                            listOfFeatNames = {}
+                            posFeatNames = graph.getVertFeatures(id)
+                            for key in posFeatNames:
+                                Allfeature = dictPostFeatNames.get(key)
+                                fragmentedFeature = Allfeature.split(':')
+                                title = fragmentedFeature[0]
+                                description = fragmentedFeature[1]
+                                listOfFeatNames[title] = description
+                            #print(listOfFeatNames)
+                            graph.setVertFeaturesNames(id, listOfFeatNames)
+        if consoleOption == 1:
+            print('El numero total de usuarios en la red es de:')
+            print(graph.getCount())
+            input("Presione la tecla enter para continuar ")
+        if consoleOption == 2:
+            print('El numero de conexiones en la red es de:')
+            print(graph.getCountEdges())
+            input("Presione la tecla enter para continuar ")
+
+        if consoleOption == 3:
+            print('La distancia maxima entre dos usuarios cualquiera de la red es de:')
+            input("Presione la tecla enter para continuar ")
+
+        if consoleOption == 4:
+            print('La distancia promedio entre dos usuarios de la red es de:')
+            input("Presione la tecla enter para continuar ")
+
+
+        if consoleOption == 5:
+            print('La cantidad de componentes fuertemente conexos en la red es de:')
+            input("Presione la tecla enter para continuar ")
+
+
+        if consoleOption == 6:
+            print('El Clique mas grande que se encontro en el grafo fue de:')
+            input("Presione la tecla enter para continuar ")
+
+
+        if consoleOption == 7:
+            print('The features of 101738342045651955119 are:')
+            print(graph.getVertFeatures('101738342045651955119'))
+            print('The features names of 101738342045651955119 are:')
+            print(graph.getVertFeaturesNames('101738342045651955119'))
+            print('Circles of user 100129275726588145876: ')
+            #print(graph.getUserCircles('100129275726588145876'))
+            input("Presione la tecla enter para continuar ")
+
+        if consoleOption == 9:
+            print('Eso fue todo, Gracias!')
+            input("Presione la tecla enter para continuar ")
             
 
-        if '.edges' in line:
-            comprobante.append(originId)
-            with open(line[:-1]) as f2:
-                allData = f2.readlines()
-            for data in allData:
-                relationLine = data.split()
-                idX = relationLine[0]
-                idY = relationLine[1]
-                
-                comprobante.append(idX)
-                comprobante.append(idY)
-
-                graph.addEdge(originId, idX)
-                graph.addEdge(idX, idY)
-
-            cont = cont + 1
-            print('Leido el archivo numero', cont)
-        comprobante = list(set(comprobante))
-        if '.egofeat' in line:
-            with open(line[:-1]) as f2:
-                allData = f2.readlines()
-                for data in allData:
-                    dataLine = data.strip().split()
-                    features = []
-                    posicion = -1
-                    try:
-                        while True:
-                            posicion = dataLine.index('1', posicion + 1)
-                            features.append(posicion)
-                    except:
-                        pass
-                    graph.setVertFeatures(originId, features)
-        if line[:-1].endswith('.feat'):
-            idsFeat = []
-            idsFeat.append(originId)
-            with open(line[:-1]) as f2:
-                allData = f2.readlines()
-                for data in allData:
-                    dataLine = data.strip().split()
-                    id = dataLine[0]
-                    if(graph.__contains__(id)):
-                        idsFeat.append(id)
-                    dataFeatures = dataLine[1:]
-                    features = []
-                    posicion = -1
-                    try:
-                        while True:
-                            posicion = dataFeatures.index('1', posicion + 1)
-                            features.append(posicion)
-                    except:
-                        pass
-                    graph.setVertFeatures(id, features)
-        if 'featnames' in line:
-            with open(line[:-1]) as f2:
-                allData = f2.readlines()
-                dictPostFeatNames = {}
-                for data in allData:
-                    dataLine = data.strip().split()
-                    key = int(dataLine[0])
-                    feature = dataLine[1]
-                    dictPostFeatNames[key] = feature
-                for id in idsFeat:
-                    listOfFeatNames = {}
-                    posFeatNames = graph.getVertFeatures(id)
-                    for key in posFeatNames:
-                        Allfeature = dictPostFeatNames.get(key)
-                        fragmentedFeature = Allfeature.split(':')
-                        title = fragmentedFeature[0]
-                        description = fragmentedFeature[1]
-                        listOfFeatNames[title] = description
-                    #print(listOfFeatNames)
-                    graph.setVertFeaturesNames(id, listOfFeatNames)
-
+        
     # create the nodes
-    print('The number of users in the graph are:')
-    print(graph.getCount())
-    print('The number of edges in the graph are:')
-    print(graph.getCountEdges())
-    print('The number of list are:')
-    print(len(comprobante))
-    print('The features of 101738342045651955119 are:')
-    print(graph.getVertFeatures('101738342045651955119'))
-    print('The features names of 101738342045651955119 are:')
-    print(graph.getVertFeaturesNames('101738342045651955119'))
-    print('Circles of user 100129275726588145876: ')
-    #print(graph.getUserCircles('100129275726588145876'))
+    
+    #print('The number of edges in the graph are:')
+    #print(graph.getCountEdges())
+    #print('The number of list are:')
+    #print(len(comprobante))
+    
