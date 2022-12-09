@@ -5,6 +5,7 @@ class Vertex:
         self.connectedTo = {}
         self.features = []
         self.featNames = {}
+        self.circles = {}
         
     def addNeighbor(self, nbr, weight = 0):
         self.connectedTo[nbr] = weight
@@ -12,6 +13,12 @@ class Vertex:
     def __str__(self):
         return f"{str(self.id)} connected to: {str([x.id for x in self.connectedTo])}"
       
+    def getCircles(self):
+        return self.circles
+
+    def setCircles(self, circles):
+        self.circles = circles
+    
     def getConnections(self):
         return self.connectedTo.keys()
 
@@ -53,16 +60,23 @@ class Graph:
     def __contains__(self, key):
         return key in self.vertList
     
+    def setUserCircles(self, id, circles):
+        if(self.__contains__(id)):
+            self.vertList[id].setCircles(circles)
+    
+    def getUserCircles(self, id):
+        return self.vertList[id].getCircles()
+    
     def setVertFeatures(self, id, features):
-        if(self.isVertexInGraph(id)):
+        if(self.__contains__(id)):
             self.vertList[id].setFeatures(features)
     
     def getVertFeatures(self, id):
-        if(self.isVertexInGraph(id)):
+        if(self.__contains__(id)):
             return self.vertList[id].getFeatures()
 
     def setVertFeaturesNames(self, id, featuresNames):
-        if(self.isVertexInGraph(id)):
+        if(self.__contains__(id)):
             self.vertList[id].setFeaturesNames(featuresNames)
     
     def getVertFeaturesNames(self, id):
@@ -87,9 +101,6 @@ class Graph:
     def getCountEdges(self):
         return self.numEdges
 
-    def isVertexInGraph(self, id):
-        return id in self.vertList
-
 if __name__ == '__main__' :    
     graph = Graph()
     comprobante = []
@@ -99,9 +110,21 @@ if __name__ == '__main__' :
         lines = f.readlines()
     for line in lines:
         originId = line.split('\\').pop().split('.').pop(0)
+        if '.circles' in line:
+            graph.addVertex(originId)
+            with open(line[:-1]) as f2:
+                allData = f2.readlines()
+            circles = {}
+            for data in allData:
+                circlesLine = data.strip().split()
+                id = circlesLine[0]
+                users = circlesLine[1:]
+                circles[id] = users
+            graph.setUserCircles(originId, circles)
+            
+
         if '.edges' in line:
             comprobante.append(originId)
-            graph.addVertex(originId)
             with open(line[:-1]) as f2:
                 allData = f2.readlines()
             for data in allData:
@@ -140,7 +163,7 @@ if __name__ == '__main__' :
                 for data in allData:
                     dataLine = data.strip().split()
                     id = dataLine[0]
-                    if(graph.isVertexInGraph(id)):
+                    if(graph.__contains__(id)):
                         idsFeat.append(id)
                     dataFeatures = dataLine[1:]
                     features = []
@@ -184,3 +207,5 @@ if __name__ == '__main__' :
     print(graph.getVertFeatures('101738342045651955119'))
     print('The features names of 101738342045651955119 are:')
     print(graph.getVertFeaturesNames('101738342045651955119'))
+    print('Circles of user 100129275726588145876: ')
+    #print(graph.getUserCircles('100129275726588145876'))
