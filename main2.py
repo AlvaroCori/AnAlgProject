@@ -3,6 +3,8 @@ class Vertex:
     def __init__(self, key):
         self.id = key
         self.connectedTo = {}
+        self.features = []
+        self.featNames = {}
         
     def addNeighbor(self, nbr, weight = 0):
         self.connectedTo[nbr] = weight
@@ -12,7 +14,19 @@ class Vertex:
       
     def getConnections(self):
         return self.connectedTo.keys()
-        
+
+    def setFeatures(self, features):
+        self.features = features.copy()
+    
+    def getFeatures(self):
+        return self.features
+    
+    def setFeaturesNames(self, featuresNames):
+        self.featNames = featuresNames.copy()
+    
+    def getFeaturesNames(self):
+        return self.featNames
+    
     def getId(self):
         return self.id
       
@@ -38,7 +52,22 @@ class Graph:
       
     def __contains__(self, key):
         return key in self.vertList
-      
+    
+    def setVertFeatures(self, id, features):
+        if(self.isVertexInGraph(id)):
+            self.vertList[id].setFeatures(features)
+    
+    def getVertFeatures(self, id):
+        if(self.isVertexInGraph(id)):
+            return self.vertList[id].getFeatures()
+
+    def setVertFeaturesNames(self, id, featuresNames):
+        if(self.isVertexInGraph(id)):
+            self.vertList[id].setFeaturesNames(featuresNames)
+    
+    def getVertFeaturesNames(self, id):
+        return self.vertList[id].getFeaturesNames()
+
     def addEdge(self, f, t, weight = 0):
         #add vertices if they do not exist
         if f not in self.vertList:
@@ -54,8 +83,12 @@ class Graph:
       
     def getCount(self):
         return self.numVertices
+    
     def getCountEdges(self):
         return self.numEdges
+
+    def isVertexInGraph(self, id):
+        return id in self.vertList
 
 if __name__ == '__main__' :    
     graph = Graph()
@@ -65,9 +98,8 @@ if __name__ == '__main__' :
     with open('list.txt') as f:
         lines = f.readlines()
     for line in lines:
+        originId = line.split('\\').pop().split('.').pop(0)
         if '.edges' in line:
-            originId = line.split('\\').pop().split('.').pop(0)
-            
             comprobante.append(originId)
             graph.addVertex(originId)
             with open(line[:-1]) as f2:
@@ -85,9 +117,61 @@ if __name__ == '__main__' :
 
             cont = cont + 1
             print('Leido el archivo numero', cont)
-            
         comprobante = list(set(comprobante))
-
+        if '.egofeat' in line:
+            with open(line[:-1]) as f2:
+                allData = f2.readlines()
+                for data in allData:
+                    dataLine = data.strip().split()
+                    features = []
+                    posicion = -1
+                    try:
+                        while True:
+                            posicion = dataLine.index('1', posicion + 1)
+                            features.append(posicion)
+                    except:
+                        pass
+                    graph.setVertFeatures(originId, features)
+        if line[:-1].endswith('.feat'):
+            idsFeat = []
+            idsFeat.append(originId)
+            with open(line[:-1]) as f2:
+                allData = f2.readlines()
+                for data in allData:
+                    dataLine = data.strip().split()
+                    id = dataLine[0]
+                    if(graph.isVertexInGraph(id)):
+                        idsFeat.append(id)
+                    dataFeatures = dataLine[1:]
+                    features = []
+                    posicion = -1
+                    try:
+                        while True:
+                            posicion = dataFeatures.index('1', posicion + 1)
+                            features.append(posicion)
+                    except:
+                        pass
+                    graph.setVertFeatures(id, features)
+        if 'featnames' in line:
+            with open(line[:-1]) as f2:
+                allData = f2.readlines()
+                dictPostFeatNames = {}
+                for data in allData:
+                    dataLine = data.strip().split()
+                    key = int(dataLine[0])
+                    feature = dataLine[1]
+                    dictPostFeatNames[key] = feature
+                for id in idsFeat:
+                    listOfFeatNames = {}
+                    posFeatNames = graph.getVertFeatures(id)
+                    for key in posFeatNames:
+                        Allfeature = dictPostFeatNames.get(key)
+                        fragmentedFeature = Allfeature.split(':')
+                        title = fragmentedFeature[0]
+                        description = fragmentedFeature[1]
+                        listOfFeatNames[title] = description
+                    #print(listOfFeatNames)
+                    graph.setVertFeaturesNames(id, listOfFeatNames)
 
     # create the nodes
     print('The number of users in the graph are:')
@@ -96,3 +180,7 @@ if __name__ == '__main__' :
     print(graph.getCountEdges())
     print('The number of list are:')
     print(len(comprobante))
+    print('The features of 101738342045651955119 are:')
+    print(graph.getVertFeatures('101738342045651955119'))
+    print('The features names of 101738342045651955119 are:')
+    print(graph.getVertFeaturesNames('101738342045651955119'))
