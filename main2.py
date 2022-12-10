@@ -3,17 +3,24 @@ class Vertex:
   
     def __init__(self, key):
         self.id = key
-        self.connectedTo = {}
+        #self.connectedTo = {} si queremos con pesos
+        self.connectedTo = []
         self.features = []
         self.featNames = {}
         self.circles = {}
         
     def addNeighbor(self, nbr, weight = 0):
-        self.connectedTo[nbr] = weight
+        #self.connectedTo[nbr] = weight
+        self.connectedTo.append(nbr)
+
         
     def __str__(self):
-        return f"{str(self.id)} connected to: {str([x.id for x in self.connectedTo])}"
-      
+        #return f"{str(self.id)} connected to: {str([x.id for x in self.connectedTo])}"
+        return f"{str(self.id)} connected to: {str([x for x in self.connectedTo])}"
+    
+    #def getOnlyIdsInAList(self):
+        #return [x.id for x in self.connectedTo]
+    
     def getCircles(self):
         return self.circles
 
@@ -95,7 +102,10 @@ class Graph:
         
     def getVertices(self):
         return self.vertList.keys()
-      
+    
+    def getUsers(self):
+        return self.vertList
+
     def getCount(self):
         return self.numVertices
     
@@ -222,6 +232,7 @@ if __name__ == '__main__' :
             input("Presione la tecla enter para continuar ")
 
         if consoleOption == 3:
+            #print(longestPath(graph.getUsers(), graph.getCount()))
             print('La distancia maxima entre dos usuarios cualquiera de la red es de:')
             input("Presione la tecla enter para continuar ")
 
