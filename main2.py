@@ -1,4 +1,8 @@
 import os
+from threading import Event
+from itertools import combinations
+
+allDirections = []
 class Vertex:
   
     def __init__(self, key):
@@ -28,7 +32,8 @@ class Vertex:
         self.circles = circles
     
     def getConnections(self):
-        return self.connectedTo.keys()
+        return [int(x.id) for x in self.connectedTo]
+        #return self.connectedTo.keys()
 
     def setFeatures(self, features):
         self.features = features.copy()
@@ -54,6 +59,7 @@ class Graph:
         self.vertList = {}
         self.numVertices = 0
         self.numEdges = 0
+        self.justAdjacencyList = {}
         
     def addVertex(self, key):
         if(key not in self.vertList or len(self.vertList) == 0):
@@ -61,17 +67,26 @@ class Graph:
             newVertex = Vertex(key)
             self.vertList[key] = newVertex
             return newVertex  
-      
+    
     def getVertex(self, key):
         return self.vertList.get(key)
-      
+    
+    def getJustAdjacencyList(self):
+        for id in self.getUsers():
+            vert = self.getVertex(id)
+            #print(vert.id)
+            #print(vert.getConnections())
+            #Event().wait(5)
+            self.justAdjacencyList[int(vert.id)] = vert.getConnections()
+        return self.justAdjacencyList
+    
     def __contains__(self, key):
         return key in self.vertList
     
     def setUserCircles(self, id, circles):
         if(self.__contains__(id)):
             self.vertList[id].setCircles(circles)
-    
+            
     def getUserCircles(self, id):
         return self.vertList[id].getCircles()
     
@@ -99,6 +114,7 @@ class Graph:
         self.numEdges += 1
         #then add Neighbor from f to t with weight
         self.vertList[f].addNeighbor(self.vertList[t], weight)
+        self.vertList[t].addNeighbor(self.vertList[f], weight)
         
     def getVertices(self):
         return self.vertList.keys()
@@ -111,6 +127,49 @@ class Graph:
     
     def getCountEdges(self):
         return self.numEdges
+
+def printAllPathsUtil(graph, u, d, visited, path):
+    # Mark the current node as visited and store in path
+    visited[u]= True
+    path.append(u)
+
+    # If current vertex is same as destination, then print
+    # current path[]
+    if u == d:
+        print (path)
+    else:
+        # If current vertex is not destination
+        # Recur for all the vertices adjacent to this vertex
+        for i in graph[u]:
+            if visited[i]== False:
+                printAllPathsUtil(graph, i, d, visited, path)
+    # Remove current vertex from path[] and mark it as unvisited
+    path.pop()
+    visited[u]= False
+  
+# Prints all paths from 's' to 'd'
+def printAllPaths(graph, s, d):
+
+    try:
+        # Mark all the vertices as not visited
+        #vis =[False]*(len(graph))
+        visited = {}
+
+        for i in graph:
+            visited[i] = False
+
+        # Create an array to store paths
+        path = []
+
+        # Call the recursive helper function to print all paths
+        printAllPathsUtil(graph, s, d, visited, path)
+    except:
+        return
+    
+
+def longestPath(graph):
+    newGraph = graph.getJustAdjacencyList()
+    printAllPaths(newGraph, 116374117927631468606, 101765416973555767821)
 
 if __name__ == '__main__' :    
     graph = Graph()
@@ -149,8 +208,8 @@ if __name__ == '__main__' :
                         circles[id] = users
                     graph.setUserCircles(originId, circles)
                     
-
                 if '.edges' in line:
+                    
                     comprobante.append(originId)
                     with open(line[:-1]) as f2:
                         allData = f2.readlines()
@@ -167,7 +226,9 @@ if __name__ == '__main__' :
 
                     cont = cont + 1
                     print('Leido el conjunto de archivos numero: ', cont)
-                comprobante = list(set(comprobante))
+                    comprobante = list(set(comprobante))
+                    reducido = list(combinations(comprobante, 2))
+                    allDirections.append(reducido)
                 if '.egofeat' in line:
                     with open(line[:-1]) as f2:
                         allData = f2.readlines()
@@ -234,6 +295,8 @@ if __name__ == '__main__' :
         if consoleOption == 3:
             #print(longestPath(graph.getUsers(), graph.getCount()))
             print('La distancia maxima entre dos usuarios cualquiera de la red es de:')
+
+            longestPath(graph)
             input("Presione la tecla enter para continuar ")
 
         if consoleOption == 4:
