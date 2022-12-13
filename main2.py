@@ -1,8 +1,8 @@
 import os
-from threading import Event
 from itertools import combinations
 
 allDirections = []
+allLenDirections = []
 class Vertex:
   
     def __init__(self, key):
@@ -74,9 +74,6 @@ class Graph:
     def getJustAdjacencyList(self):
         for id in self.getUsers():
             vert = self.getVertex(id)
-            #print(vert.id)
-            #print(vert.getConnections())
-            #Event().wait(5)
             self.justAdjacencyList[int(vert.id)] = vert.getConnections()
         return self.justAdjacencyList
     
@@ -128,48 +125,43 @@ class Graph:
     def getCountEdges(self):
         return self.numEdges
 
-def printAllPathsUtil(graph, u, d, visited, path):
-    # Mark the current node as visited and store in path
+def findPath(graph, u, d, visited, path):
     visited[u]= True
     path.append(u)
-
-    # If current vertex is same as destination, then print
-    # current path[]
     if u == d:
-        print (path)
+        #print (path)
+        allDirections.append(path)
+        allLenDirections.append(len(path))
     else:
-        # If current vertex is not destination
         # Recur for all the vertices adjacent to this vertex
         for i in graph[u]:
             if visited[i]== False:
-                printAllPathsUtil(graph, i, d, visited, path)
+                findPath(graph, i, d, visited, path)
     # Remove current vertex from path[] and mark it as unvisited
     path.pop()
     visited[u]= False
-  
-# Prints all paths from 's' to 'd'
-def printAllPaths(graph, s, d):
 
+def findAllPathsBetween2users(graph, s, d):
     try:
-        # Mark all the vertices as not visited
-        #vis =[False]*(len(graph))
         visited = {}
-
         for i in graph:
             visited[i] = False
-
-        # Create an array to store paths
         path = []
-
-        # Call the recursive helper function to print all paths
-        printAllPathsUtil(graph, s, d, visited, path)
+        findPath(graph, s, d, visited, path)
     except:
         return
     
+def avg(lst):
+    return sum(lst) / len(lst)
 
-def longestPath(graph):
+def longestPath(graph, s, d):
     newGraph = graph.getJustAdjacencyList()
-    printAllPaths(newGraph, 116374117927631468606, 101765416973555767821)
+    findAllPathsBetween2users(newGraph, int(s), int(d))
+    return max(allLenDirections)
+def averagePath(graph, s, d):
+    newGraph = graph.getJustAdjacencyList()
+    findAllPathsBetween2users(newGraph, int(s), int(d))
+    return avg(allLenDirections)
 
 if __name__ == '__main__' :    
     graph = Graph()
@@ -227,8 +219,8 @@ if __name__ == '__main__' :
                     cont = cont + 1
                     print('Leido el conjunto de archivos numero: ', cont)
                     comprobante = list(set(comprobante))
-                    reducido = list(combinations(comprobante, 2))
-                    allDirections.append(reducido)
+                    #reducido = list(combinations(comprobante, 2))
+                    #allDirections.append(reducido)
                 if '.egofeat' in line:
                     with open(line[:-1]) as f2:
                         allData = f2.readlines()
@@ -293,14 +285,17 @@ if __name__ == '__main__' :
             input("Presione la tecla enter para continuar ")
 
         if consoleOption == 3:
-            #print(longestPath(graph.getUsers(), graph.getCount()))
-            print('La distancia maxima entre dos usuarios cualquiera de la red es de:')
-
-            longestPath(graph)
+            src = input('Ingrese un usuario: ')
+            dst = input('Ingrese el siguiente usuario: ')
+            print('La distancia maxima entre el usuario ' + src + ' y el usuario ' + dst + ' en la red es de:')
+            print(longestPath(graph, src, dst), 'usuarios, incluyendo el usuario inicio y fin')
             input("Presione la tecla enter para continuar ")
 
         if consoleOption == 4:
-            print('La distancia promedio entre dos usuarios de la red es de:')
+            src = input('Ingrese un usuario: ')
+            dst = input('Ingrese el siguiente usuario: ')
+            print('La distancia promedio entre el usuario ' + src + ' y el usuario ' + dst + ' en la red es de:')
+            print(averagePath(graph, src, dst), 'nodos, incluyendo el nodo inicio y nodo destino')
             input("Presione la tecla enter para continuar ")
 
 
