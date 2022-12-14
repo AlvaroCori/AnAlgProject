@@ -1,21 +1,62 @@
 #include <iostream>
-#include <fstream>
-#include <algorithm>
 #include <vector>
+#include <stack>
+#include <algorithm>
+#include <fstream>
 #include <string>
 #include <map>
 #include <set>
 #include <cstring>
+#include <queue>
 using namespace std;
-class Graph
-{
-    vector<long long> Graph;
+class Graph{
+    public:
+        vector<bool> Graph_r[79991];//Este grafo toma menos memoria
+        map<string, set<string>> Graph;
+        int size;
+        vector<int> Dijkstra(int exit_node){
+            priority_queue < pair<int, int>> priority;
+            vector<int> distance;
+            vector<bool> visited;
+            int index, y, length, new_distance;
+            for( int i = 0; i <= size; i++ ){ 
+                distance.push_back(INT_MAX);
+                visited.push_back(false);
+            };
+            priority.push( pair<int, int>(exit_node, 0));
+            distance[exit_node] =0;
+            visited[exit_node] = true;
+            while( priority.size() > 0){
+                index = priority.top().first;
+                length = priority.top().second;
+                priority.pop();
+                for(int neighbor = 1; neighbor<=size;neighbor= neighbor + 1){
+                    if (Graph_r[index][neighbor] == false)
+                    {
+                        continue;
+                    }
+                    y = neighbor;
+                    if (visited[y])
+                    {
+                        continue;
+                    }
+                    new_distance = distance[index] + 1;
+                    if( new_distance < distance[y]){
+                        distance[y] = new_distance;
+                        priority.push(pair<int, int>(y, 1));
+                    }
+                }
+            }
+            return distance;
+        }
+        
 };
 class ReaderFiles
 {
     vector<string> Paths;
-    Graph Graph;
+    map<string, int> Dictionary;
     public:
+        Graph Graph;
         void get_files(string txt_file)
         {
             string path;
@@ -82,26 +123,53 @@ class ReaderFiles
             }
             return set_1;
         }
-        void count_users()
+        bool add_vertice(string id)
+        {
+            bool not_exist_vertice = Graph.Graph.count(id) <= 0;
+            if (not_exist_vertice)
+            {
+                Graph.Graph.insert(pair<string, set<string>>(id, set<string>()));
+            }
+            return not_exist_vertice;
+
+        }
+        bool add_edge(string origin, string neighbor)
+        {
+            if (Graph.Graph.find(origin) == Graph.Graph.end())
+            {
+                int er;
+                cout<<"duplicadooooooooooooooo";
+                cin>>er;
+            }
+
+            bool exist_edge = Graph.Graph[origin].find(neighbor) != Graph.Graph[origin].end();
+            if (exist_edge == false){
+                Graph.Graph[origin].insert(neighbor);
+            }
+            return ~exist_edge; 
+        }
+        void load_graph()
         {
             enum type_files { edges = 0, circles = 1, feat = 2, egofeat = 3, featnames = 4};
             int complete_path_size = 66;
             int lines, files = 0;
             string line, name_file, name, type_file;
-            set<string> vertices_files;
-            set<string> vertices_edges;
-            set<string> vertices_circles;
-            set<string> vertices_feat;
-            set<string> vertices;
             int max = 0;
+            int fl = 2000;
             for (auto path: Paths)
             {
+                fl = fl - 1;
+                cout<<fl<<endl;
+                if (fl == 0)
+                {
+                    break;
+                }
                 ifstream ReadFile(path);
                 lines = 0;
                 name_file = path.substr(complete_path_size-1, path.length());
                 name = get_substring(name_file, '.', 0);
                 type_file = path.substr(complete_path_size+name.length(), path.length()-1);
-                vertices_files.insert(name);
+                add_vertice(name);
                 while (getline(ReadFile, line)) {
                     lines = lines + 1;
                     if (type_file == "edges")
@@ -109,10 +177,13 @@ class ReaderFiles
                         string idx, idy;
                         idx = get_substring(line, ' ', 0);
                         idy = get_substring(line, ' ', idx.length()+1);
-                        vertices_edges.insert(idx);
-                        vertices_edges.insert(idy);
+                        add_vertice(idx);
+                        add_vertice(idx);
+                        add_edge(name, idx);
+                        add_edge(idx, idy);
                         continue;
                     }
+                    /*
                     if (type_file == "circles")
                     {
                         vector<string> values = split(line);
@@ -128,26 +199,31 @@ class ReaderFiles
                         vertices_feat.insert(values[0]);
                         continue;
                     }
+                    */
                 }
                 files = files + 1;
-                /*
-                cout<<path<<endl;
-                cout<<"lineas: "<<lines<<endl;
-                */
                 cout<<name<<" "<<type_file<<endl;
 
                 ReadFile.close();
             }
-            vertices = join_sets(vertices, vertices_files);
-            vertices = join_sets(vertices, vertices_edges);
-            //vertices = join_sets(vertices, vertices_circles);
-            //vertices = join_sets(vertices, vertices_feat);
             cout<<"Se leyo "<<files<<" archivos."<<endl;
-            cout<<"Existen "<<vertices_files.size()<<" usuarios en los nombres de archivos."<<endl;
-            cout<<"Existen "<<vertices_edges.size()<<" usuarios en los archivos edge."<<endl;
-            cout<<"Existen "<<vertices_circles.size()<<" usuarios en los archivos circles."<<endl;
-            cout<<"Existen "<<vertices_feat.size()<<" usuarios en los archivos feat."<<endl;
-            cout<<"Existen "<<vertices.size()<<" en total de usuarios."<<endl;
+        }
+        void convert_graph()
+        {
+            int i = 1;
+            Graph.size = Graph.Graph.size();
+            for (auto v: Graph.Graph)
+            {
+                Dictionary[v.first]= i;
+                Graph.Graph_r[i] = vector<bool>(Graph.size, false);
+                i = i + 1;
+            }
+
+        }
+        int get_distances()
+        {
+            vector<int> distances;
+            return 0;
         }
 };
 
@@ -155,13 +231,11 @@ class ReaderFiles
 int main(){
     ReaderFiles reader;
     reader.get_files("list.txt");
-    reader.count_users();
+    reader.load_graph();
+    reader.convert_graph();
+    cout<<"Se capto "<<reader.Graph.Graph.size()<<" usuarios."<<endl;
+    cout<<"La cantidad de componentes conexas es de "<<endl;
+    int n = reader.get_distances();
+    ///cout<<reader.get_comp_conexes()<<endl;
     return 0;
 }
-
-
-///132 nodos segun el nombre de los archivos.
-
-//Existen 102119 nodos leyendo los nodos de los archivos edges
-
-//La linea mas larga es 10989 en circles

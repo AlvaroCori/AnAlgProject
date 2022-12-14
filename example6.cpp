@@ -9,13 +9,14 @@
 using namespace std;
 class Graph
 {
-    vector<long long> Graph;
+    public:
+        map<string, set<string>> Graph;
 };
 class ReaderFiles
 {
     vector<string> Paths;
-    Graph Graph;
     public:
+        Graph Graph;
         void get_files(string txt_file)
         {
             string path;
@@ -82,17 +83,30 @@ class ReaderFiles
             }
             return set_1;
         }
-        void count_users()
+        bool add_vertice(string id)
+        {
+            bool not_exist_vertice = Graph.Graph.count(id) <= 0;
+            if (not_exist_vertice)
+            {
+                Graph.Graph.insert(pair<string, set<string>>(id, set<string>()));
+            }
+            return not_exist_vertice;
+
+        }
+        bool add_edge(string origin, string neigbhor)
+        {
+            bool exist_edge = Graph.Graph[origin].find(neigbhor) != Graph.Graph[origin].end();
+            if (exist_edge == false){
+                Graph.Graph[origin].insert(neigbhor);
+            }
+            return ~exist_edge; 
+        }
+        void load_graph()
         {
             enum type_files { edges = 0, circles = 1, feat = 2, egofeat = 3, featnames = 4};
             int complete_path_size = 66;
             int lines, files = 0;
             string line, name_file, name, type_file;
-            set<string> vertices_files;
-            set<string> vertices_edges;
-            set<string> vertices_circles;
-            set<string> vertices_feat;
-            set<string> vertices;
             int max = 0;
             for (auto path: Paths)
             {
@@ -101,7 +115,7 @@ class ReaderFiles
                 name_file = path.substr(complete_path_size-1, path.length());
                 name = get_substring(name_file, '.', 0);
                 type_file = path.substr(complete_path_size+name.length(), path.length()-1);
-                vertices_files.insert(name);
+                add_vertice(name);
                 while (getline(ReadFile, line)) {
                     lines = lines + 1;
                     if (type_file == "edges")
@@ -109,10 +123,13 @@ class ReaderFiles
                         string idx, idy;
                         idx = get_substring(line, ' ', 0);
                         idy = get_substring(line, ' ', idx.length()+1);
-                        vertices_edges.insert(idx);
-                        vertices_edges.insert(idy);
+                        add_vertice(idx);
+                        add_vertice(idx);
+                        add_edge(name, idx);
+                        add_edge(idx, idy);
                         continue;
                     }
+                    /*
                     if (type_file == "circles")
                     {
                         vector<string> values = split(line);
@@ -128,6 +145,7 @@ class ReaderFiles
                         vertices_feat.insert(values[0]);
                         continue;
                     }
+                    */
                 }
                 files = files + 1;
                 /*
@@ -138,30 +156,61 @@ class ReaderFiles
 
                 ReadFile.close();
             }
-            vertices = join_sets(vertices, vertices_files);
-            vertices = join_sets(vertices, vertices_edges);
-            //vertices = join_sets(vertices, vertices_circles);
-            //vertices = join_sets(vertices, vertices_feat);
             cout<<"Se leyo "<<files<<" archivos."<<endl;
-            cout<<"Existen "<<vertices_files.size()<<" usuarios en los nombres de archivos."<<endl;
-            cout<<"Existen "<<vertices_edges.size()<<" usuarios en los archivos edge."<<endl;
-            cout<<"Existen "<<vertices_circles.size()<<" usuarios en los archivos circles."<<endl;
-            cout<<"Existen "<<vertices_feat.size()<<" usuarios en los archivos feat."<<endl;
-            cout<<"Existen "<<vertices.size()<<" en total de usuarios."<<endl;
         }
+        int find_cliques(vector<string> potential_clique, set<string> remaining_nodes, vector<string> skip_nodes, int max_cliques = 0)
+        {
+            set<string> new_remaining_nodes, aux;
+            vector<string> new_skip_nodes, new_potential_clique;
+            if (remaining_nodes.size() == 0 && skip_nodes.size() == 0 && max_cliques < potential_clique.size())
+            {
+                max_cliques = potential_clique.size();
+            }
+            aux = remaining_nodes;
+            for (auto node : aux)
+            {
+                new_potential_clique = potential_clique;
+                new_potential_clique.push_back(node);
+                new_remaining_nodes = set<string>();
+                for (auto remaining : remaining_nodes)
+                {
+                    if (Graph.Graph[node].find(remaining) != Graph.Graph[node].end())
+                    {
+                        new_remaining_nodes.insert(remaining);
+                    }
+                }
+                new_skip_nodes = vector<string>();
+                for (auto skip : skip_nodes)
+                {
+                    if (Graph.Graph[node].find(skip) != Graph.Graph[node].end())
+                    {
+                        new_skip_nodes.push_back(skip);
+                    }
+                }
+                max_cliques = find_cliques(new_potential_clique, new_remaining_nodes, new_skip_nodes, max_cliques);
+                remaining_nodes.erase(node);
+                skip_nodes.push_back(node);
+            }
+            return max_cliques;
+        }
+        int get_max_cliques()
+        {
+            vector<string> potential_clique, skip_nodes;
+            set<string> remainings;
+            for (auto vertice : Graph.Graph)
+            {
+                remainings.insert(vertice.first);
+            }
+            return find_cliques(potential_clique, remainings, skip_nodes);
+        }     
 };
 
 
 int main(){
     ReaderFiles reader;
     reader.get_files("list.txt");
-    reader.count_users();
+    reader.load_graph();
+    cout<<"Se capto "<<reader.Graph.Graph.size()<<" usuarios."<<endl;
+    cout<<"El mayor clique es de "<<reader.get_max_cliques()<<endl;
     return 0;
 }
-
-
-///132 nodos segun el nombre de los archivos.
-
-//Existen 102119 nodos leyendo los nodos de los archivos edges
-
-//La linea mas larga es 10989 en circles
