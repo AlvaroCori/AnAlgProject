@@ -74,6 +74,10 @@ int main(){
     cout<<sum<<" / "<<distance.size()-1<<endl;
 	return 0;
 }
-
+/*
+La cantidad de componentes conexas es de
+2442
+g++ -O2 -std=c++11 -Wall -Wl,--stack=268435456 example5.cpp -o example.exe
+*/
 
 ///"stack": "108435456"

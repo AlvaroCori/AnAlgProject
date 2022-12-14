@@ -293,7 +293,7 @@ class ReaderFiles
             int lines, files = 0;
             string line, name_file, name, type_file;
             int max = 0;
-            int fl = 196;
+            int fl = 800;
             for (auto path: Paths)
             {
                 fl = fl - 1;

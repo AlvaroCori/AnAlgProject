@@ -9,5 +9,6 @@
         "string": "cpp",
         "xtree": "cpp",
         "map": "cpp"
-    }
+    },
+    "C_Cpp.intelliSenseMemoryLimit": 6096
 }
