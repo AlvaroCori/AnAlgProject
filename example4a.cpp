@@ -8,6 +8,7 @@
 #include <set>
 #include <cstring>
 #include <queue>
+#include <limits.h>
 using namespace std;
 class Graph{
     public:
@@ -155,7 +156,7 @@ class ReaderFiles
             int lines, files = 0;
             string line, name_file, name, type_file;
             int max = 0;
-            int fl = 2000;
+            int fl = 501;
             for (auto path: Paths)
             {
                 fl = fl - 1;
@@ -178,9 +179,11 @@ class ReaderFiles
                         idx = get_substring(line, ' ', 0);
                         idy = get_substring(line, ' ', idx.length()+1);
                         add_vertice(idx);
-                        add_vertice(idx);
+                        add_vertice(idy);
                         add_edge(name, idx);
+                        add_edge(idx, name);
                         add_edge(idx, idy);
+                        add_edge(idy, idx);
                         continue;
                     }
                     /*
@@ -218,12 +221,28 @@ class ReaderFiles
                 Graph.Graph_r[i] = vector<bool>(Graph.size, false);
                 i = i + 1;
             }
+            for (auto v: Graph.Graph)
+            {
+                i = Dictionary[v.first];
+                for (auto n: v.second)
+                {
+                    Graph.Graph_r[i][Dictionary[n]] = true;
+                }
+            }
 
         }
-        int get_distances()
+        float get_distances()
         {
-            vector<int> distances;
-            return 0;
+            vector<int> distances = Graph.Dijkstra(1);
+            int sum = 0;
+            float average = 0;
+            for (int d = 1; d<distances.size(); d++)
+            {
+                sum = sum + d;
+            }
+            average = sum / distances.size();
+            cout<<sum<<" / "<<distances.size()<<" = "<<endl;
+            return average;
         }
 };
 
@@ -234,8 +253,22 @@ int main(){
     reader.load_graph();
     reader.convert_graph();
     cout<<"Se capto "<<reader.Graph.Graph.size()<<" usuarios."<<endl;
-    cout<<"La cantidad de componentes conexas es de "<<endl;
+    cout<<"La distancia promedio es: "<<endl;
     int n = reader.get_distances();
+    cout<<n<<endl;
     ///cout<<reader.get_comp_conexes()<<endl;
     return 0;
 }
+///g++ -O2 -std=c++11 -Wall -Wl,--stack=4194304 example4a.cpp -o example.exe
+//4MB
+
+
+/*
+Se leyo 400 archivos.
+Se capto 62981 usuarios.
+La distancia promedio es:
+1983334671 / 62982 =
+31490
+*/
+
+//g++ -O2 -std=c++11 -Wall -Wl,--stack=1208435456 example4a.cpp -o example.exe
