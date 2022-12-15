@@ -3,6 +3,8 @@ from itertools import combinations
 
 allDirections = []
 allLenDirections = []
+
+### Clase Vertex, donde se almacenara la informacion importante de cada usuario.
 class Vertex:
   
     def __init__(self, key):
@@ -19,11 +21,7 @@ class Vertex:
 
         
     def __str__(self):
-        #return f"{str(self.id)} connected to: {str([x.id for x in self.connectedTo])}"
         return f"{str(self.id)} connected to: {str([x for x in self.connectedTo])}"
-    
-    #def getOnlyIdsInAList(self):
-        #return [x.id for x in self.connectedTo]
     
     def getCircles(self):
         return self.circles
@@ -33,7 +31,6 @@ class Vertex:
     
     def getConnections(self):
         return [int(x.id) for x in self.connectedTo]
-        #return self.connectedTo.keys()
 
     def setFeatures(self, features):
         self.features = features.copy()
@@ -52,7 +49,8 @@ class Vertex:
       
     def getWeight(self, nbr):
         return self.connectedTo.get(nbr)
-      
+
+### Clase Graph, donde se almacenara la lista de vertices en un diccionario y se tendran las funciones de agregar conexiones, entre otras mas
 class Graph:
   
     def __init__(self):
@@ -103,13 +101,13 @@ class Graph:
         return self.vertList[id].getFeaturesNames()
 
     def addEdge(self, f, t, weight = 0):
-        #add vertices if they do not exist
+        #Se agregan los vertices encaso de que no existan
         if f not in self.vertList:
             nv = self.addVertex(f)
         if t not in self.vertList:
             nv = self.addVertex(t)
         self.numEdges += 1
-        #then add Neighbor from f to t with weight
+        #Finalmente se agregan las conexiones, de f a t y t a f para que el grafo sea no dirigido
         self.vertList[f].addNeighbor(self.vertList[t], weight)
         self.vertList[t].addNeighbor(self.vertList[f], weight)
         
@@ -125,6 +123,7 @@ class Graph:
     def getCountEdges(self):
         return self.numEdges
 
+### Algoritmos usados para la pregunta 3 donde es un DFS, que busca los caminos a traves de los nodos adyacentes 
 def findPath(graph, u, d, visited, path):
     visited[u]= True
     path.append(u)
@@ -150,7 +149,7 @@ def findAllPathsBetween2users(graph, s, d):
         findPath(graph, s, d, visited, path)
     except:
         return
-    
+
 def avg(lst):
     return sum(lst) / len(lst)
 
@@ -158,6 +157,8 @@ def longestPath(graph, s, d):
     newGraph = graph.getJustAdjacencyList()
     findAllPathsBetween2users(newGraph, int(s), int(d))
     return max(allLenDirections)
+
+### Intento de algoritmo de la 4  
 def averagePath(graph, s, d):
     newGraph = graph.getJustAdjacencyList()
     findAllPathsBetween2users(newGraph, int(s), int(d))
@@ -169,6 +170,7 @@ if __name__ == '__main__' :
     reducido = []
     cont = 0
     consoleOption = -1
+    ### MENU
     while(consoleOption != 9):
         os.system ("cls") 
         print('Que dese hacer?')
@@ -178,16 +180,18 @@ if __name__ == '__main__' :
         print('2. Respuesta a la pregunta 2')
         print('3. Respuesta a la pregunta 3')
         print('4. Respuesta a la pregunta 4')
-        print('5. Respuesta a la pregunta 5')
-        print('6. Respuesta a la pregunta 6')
         print('7. Otros datos')
         print('9. Salir')
         consoleOption = int(input("Opcion: "))
         if consoleOption == 0:
+            ### Lectura del archivo list.txt, donde se encuentran el resto de direcciones de los otros archivos
             with open('list.txt') as f:
                 lines = f.readlines()
             for line in lines:
+                ### originId es el id del archivo que se esta leyendo
                 originId = line.split('\\').pop().split('.').pop(0)
+                ### Lectura de las direcciones dentro del archivo list.txt
+                ### Lectura y alamcenamiento de los .circles, se guardan en un diccionario de igual manera que los otros
                 if '.circles' in line:
                     graph.addVertex(originId)
                     with open(line[:-1]) as f2:
@@ -199,7 +203,7 @@ if __name__ == '__main__' :
                         users = circlesLine[1:]
                         circles[id] = users
                     graph.setUserCircles(originId, circles)
-                    
+                ### Lectura y almacenamiento de los .edges, se agregaron las conexiones de nodeId -> idX, idX -> idY
                 if '.edges' in line:
                     
                     comprobante.append(originId)
@@ -221,6 +225,7 @@ if __name__ == '__main__' :
                     comprobante = list(set(comprobante))
                     #reducido = list(combinations(comprobante, 2))
                     #allDirections.append(reducido)
+                ### Lectura y almacenamiento del archivo egofeat, que contiene las caracteristicas del usuario con el id del archivo
                 if '.egofeat' in line:
                     with open(line[:-1]) as f2:
                         allData = f2.readlines()
@@ -235,6 +240,9 @@ if __name__ == '__main__' :
                             except:
                                 pass
                             graph.setVertFeatures(originId, features)
+                ### Lectura y almacenamiento de los feat de todos los usuarios creados del archivo .edge
+                ### En vez de guardar toda la lista de 1 y 0, se guarda solo la posicion donde se encuentren los 1
+                ### Esta parte es distinta, debido a que featnames tambien contiene feat, por lo que en la siguiente linea solo toma en cuenta los archivos que terminen  en .feat
                 if line[:-1].endswith('.feat'):
                     idsFeat = []
                     idsFeat.append(originId)
@@ -255,6 +263,7 @@ if __name__ == '__main__' :
                             except:
                                 pass
                             graph.setVertFeatures(id, features)
+                ### Lectura y almacenamiento de los featnames basandose en las caracteristicas previamente recibidas en el .feat
                 if 'featnames' in line:
                     with open(line[:-1]) as f2:
                         allData = f2.readlines()
@@ -299,24 +308,15 @@ if __name__ == '__main__' :
             input("Presione la tecla enter para continuar ")
 
         if consoleOption == 7:
-            print('The features of 101738342045651955119 are:')
+            print('Las posiciones de los features de 101738342045651955119 son:')
             print(graph.getVertFeatures('101738342045651955119'))
-            print('The features names of 101738342045651955119 are:')
+            print('Los nombres de los features de 101738342045651955119 son:')
             print(graph.getVertFeaturesNames('101738342045651955119'))
-            print('Circles of user 100129275726588145876: ')
+            #print('Circles of user 100129275726588145876: ')
             #print(graph.getUserCircles('100129275726588145876'))
             input("Presione la tecla enter para continuar ")
 
         if consoleOption == 9:
             print('Eso fue todo, Gracias!')
             input("Presione la tecla enter para continuar ")
-            
-
-        
-    # create the nodes
-    
-    #print('The number of edges in the graph are:')
-    #print(graph.getCountEdges())
-    #print('The number of list are:')
-    #print(len(comprobante))
     
