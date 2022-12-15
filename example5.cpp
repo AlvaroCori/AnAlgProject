@@ -156,11 +156,12 @@ class ReaderFiles
         {
             if (Graph.Graph.find(origin) == Graph.Graph.end())
             {
-                int er;
-                cout<<"duplicadooooooooooooooo";
-                cin>>er;
+                add_vertice(origin);
             }
-
+            if (Graph.Graph.find(neighbor) == Graph.Graph.end())
+            {
+                add_vertice(neighbor);
+            }
             bool exist_edge = Graph.Graph[origin].find(neighbor) != Graph.Graph[origin].end();
             if (exist_edge == false){
                 Graph.Graph[origin].insert(neighbor);
@@ -174,15 +175,8 @@ class ReaderFiles
             int lines, files = 0;
             string line, name_file, name, type_file;
             int max = 0;
-            int fl = 800;
             for (auto path: Paths)
             {
-                fl = fl - 1;
-                cout<<fl<<endl;
-                if (fl == 0)
-                {
-                    break;
-                }
                 ifstream ReadFile(path);
                 lines = 0;
                 name_file = path.substr(complete_path_size-1, path.length());
@@ -201,43 +195,10 @@ class ReaderFiles
                         add_edge(name, idx);
                         add_edge(idx, idy);
                         continue;
-                    }
-                    /*
-                    if (type_file == "circles")
-                    {
-                        vector<string> values = split(line);
-                        for (int i = 1; i < values.size() ; i++)
-                        {
-                            if (name == values[i])
-                            {
-                                continue;
-                            }
-                            string idx;
-                            add_vertice(values[i]);
-                            add_edge(name, values[i]);
-                        }
-                        for (int i = 1; i < values.size() ; i++)
-                        {
-                            for (int j = 1; j < values.size() ; j++)
-                            {
-                                if (values[i] != values[j])
-                                {
-                                    add_edge(values[i], values[j]);
-                                }
-                            }
-                        }
-                        continue;
-                    }
-                    */
-                   
+                    }               
                 }
                 files = files + 1;
-                /*
-                cout<<path<<endl;
-                cout<<"lineas: "<<lines<<endl;
-                */
                 cout<<name<<" "<<type_file<<endl;
-
                 ReadFile.close();
             }
             cout<<"Se leyo "<<files<<" archivos."<<endl;
@@ -254,21 +215,15 @@ int main(){
     ReaderFiles reader;
     reader.get_files("list.txt");
     reader.load_graph();
-    cout<<"Se capto "<<reader.Graph.Graph.size()<<" usuarios."<<endl;
     reader.Graph.realize_tharjan();
     cout<<"La cantidad de componentes conexas es de "<<reader.Graph.scc_count<<"."<<endl;
     return 0;
 }
 
-///g++ -O2 -std=c++11 -Wall -Wl,--stack=4194304 example5.cpp -o example.exe
-//4MB
-
-
-
-
+///g++ -O2 -std=c++11 -Wall -Wl,--stack=268435456 example5.cpp -o example.exe
+//268 MB
 
 /*
 Se leyo 792 archivos.
-Se capto 72271 usuarios.
 La cantidad de componentes conexas es de 2431.
 */
