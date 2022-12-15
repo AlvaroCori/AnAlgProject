@@ -130,18 +130,14 @@ class ReaderFiles
                     }
                 }
                 files = files + 1;
-                /*
-                cout<<path<<endl;
-                cout<<"lineas: "<<lines<<endl;
-                */
                 cout<<name<<" "<<type_file<<endl;
 
                 ReadFile.close();
             }
             vertices = join_sets(vertices, vertices_files);
             vertices = join_sets(vertices, vertices_edges);
-            //vertices = join_sets(vertices, vertices_circles);
-            //vertices = join_sets(vertices, vertices_feat);
+            vertices = join_sets(vertices, vertices_circles);
+            vertices = join_sets(vertices, vertices_feat);
             cout<<"Se leyo "<<files<<" archivos."<<endl;
             cout<<"Existen "<<vertices_files.size()<<" usuarios en los nombres de archivos."<<endl;
             cout<<"Existen "<<vertices_edges.size()<<" usuarios en los archivos edge."<<endl;

@@ -222,8 +222,9 @@ class ReaderFiles
             float average = 0;
             for (int d = 1; d<distances.size(); d++)
             {
-                sum = sum + d;
+                sum = sum + distances[d];
             }
+            
             average = sum / distances.size();
             cout<<sum<<" / "<<distances.size()<<" = "<<endl;
             return average;
