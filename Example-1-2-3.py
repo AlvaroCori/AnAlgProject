@@ -81,6 +81,9 @@ class Graph:
     def setUserCircles(self, id, circles):
         if(self.__contains__(id)):
             self.vertList[id].setCircles(circles)
+            for i in circles:
+                if(not self.__contains__(i)):
+                    self.addVertex(i)
             
     def getUserCircles(self, id):
         return self.vertList[id].getCircles()
@@ -88,14 +91,20 @@ class Graph:
     def setVertFeatures(self, id, features):
         if(self.__contains__(id)):
             self.vertList[id].setFeatures(features)
+        else:
+            self.addVertex(id)
     
     def getVertFeatures(self, id):
         if(self.__contains__(id)):
             return self.vertList[id].getFeatures()
+        else:
+            self.addVertex(id)
 
     def setVertFeaturesNames(self, id, featuresNames):
         if(self.__contains__(id)):
             self.vertList[id].setFeaturesNames(featuresNames)
+        else:
+            self.addVertex(id)
     
     def getVertFeaturesNames(self, id):
         return self.vertList[id].getFeaturesNames()
