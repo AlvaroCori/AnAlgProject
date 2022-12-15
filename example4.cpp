@@ -157,7 +157,7 @@ class ReaderFiles
             int lines, files = 0;
             string line, name_file, name, type_file;
             int max = 0;
-            int limit = 451;
+            int limit = 201;
             for (auto path: Paths)
             {
                 limit = limit - 1;

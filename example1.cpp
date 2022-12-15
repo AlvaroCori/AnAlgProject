@@ -160,8 +160,4 @@ int main(){
 }
 
 
-///132 nodos segun el nombre de los archivos.
-
-//Existen 102119 nodos leyendo los nodos de los archivos edges
-
-//La linea mas larga es 10989 en circles
+//g++ -O2 -std=c++11 -Wall -Wl,--stack=268435456 example1.cpp -o example.exe
