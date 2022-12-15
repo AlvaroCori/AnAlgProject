@@ -259,16 +259,5 @@ int main(){
     ///cout<<reader.get_comp_conexes()<<endl;
     return 0;
 }
-///g++ -O2 -std=c++11 -Wall -Wl,--stack=4194304 example4a.cpp -o example.exe
-//4MB
-
-
-/*
-Se leyo 400 archivos.
-Se capto 62981 usuarios.
-La distancia promedio es:
-1983334671 / 62982 =
-31490
-*/
 
 //g++ -O2 -std=c++11 -Wall -Wl,--stack=1208435456 example4a.cpp -o example.exe

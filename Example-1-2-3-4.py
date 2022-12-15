@@ -1,6 +1,7 @@
 import os
 from itertools import combinations
-
+from itertools import combinations
+import networkx as nx
 allDirections = []
 allLenDirections = []
 class Vertex:
@@ -163,6 +164,28 @@ def averagePath(graph, s, d):
     findAllPathsBetween2users(newGraph, int(s), int(d))
     return avg(allLenDirections)
 
+def k_cliques(graph):
+    cliques = [{i, j} for i, j in graph.edges() if i != j]
+    k = 2
+    while cliques:
+        yield k, cliques
+        cliques_1 = set()
+        for u, v in combinations(cliques, 2):
+            w = u ^ v
+            if len(w) == 2 and graph.has_edge(*w):
+                cliques_1.add(tuple(u | w))
+        cliques = list(map(set, cliques_1))
+        k += 1
+
+def max_cliques(graph):
+    max_k = 0
+    for k, cliques in k_cliques(graph):#consigue todos los cliques
+        if (max_k < k):
+            print(k)
+            max_k = k 
+    return max_k
+
+
 if __name__ == '__main__' :    
     graph = Graph()
     comprobante = []
@@ -298,6 +321,16 @@ if __name__ == '__main__' :
             print(averagePath(graph, src, dst), 'nodos, incluyendo el nodo inicio y nodo destino')
             input("Presione la tecla enter para continuar ")
 
+        if consoleOption == 6:
+            graph_v = nx.Graph()
+            print("Calculando el mayor clique")
+            graph_v.add_nodes_from([key for key in graph.vertList])
+            for key in graph.vertList:
+                for neighbor in graph.vertList[key].connectedTo:
+                    graph_v.add_edge(key,neighbor)
+            print("Calculando los cliques.")
+            print(f"El clique mas grande es {max_cliques(graph_v)}.")
+            r = input()
         if consoleOption == 7:
             print('The features of 101738342045651955119 are:')
             print(graph.getVertFeatures('101738342045651955119'))

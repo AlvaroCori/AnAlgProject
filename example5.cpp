@@ -9,71 +9,6 @@
 #include <cstring>
 
 using namespace std;
-/*
-class Graph{
-    public:
-        map<string, set<string>> Graph;
-        vector<bool> Visited;
-        map<string,int> Ids;
-        map<string,int> Low;
-        stack<string> Stack;
-        map<string, bool> on_stack;
-        int id;
-        int scc_count = 0;
-        void realize_tharjan(){
-            id = 0;
-            scc_count = 0;
-            for (auto v : Graph)
-            {
-                on_stack.insert(pair<string, bool>(v.first, false));
-                Ids.insert(pair<string, int>(v.first, -1));
-                Low.insert(pair<string, int>(v.first, -1));
-            }
-            auto it = Graph.begin();
-            cout<<Graph.size()<<endl;
-            int r = 0;
-            for(auto v: Graph){
-                if(Ids[v.first] == -1){
-                    r = r+1;
-                    id = -1;
-                    cout<<"w"<<endl;
-                    dfs_tharjan(it->first);
-                }
-            }
-            cout<<"se metio dfs en: "<<r<<endl;
-        }
-        void dfs_tharjan(string at)
-        {
-            Stack.push(at);
-            on_stack[at] = true;
-            id = id + 1;
-            Ids[at] = id;
-            Low[at] = id;
-            //Visit all neighbours & min low-linkon callback
-            for(auto to : Graph[at]){
-                if (Ids[to] == -1){
-                    dfs_tharjan(to);
-                    Low[at] = min(Low[at], Low[to]);
-                    continue;
-                } 
-                if (on_stack[to]){
-                    Low[at] = min(Low[at], Low[to]);
-                }
-            }
-            //After exploring all neighbors
-            if (Ids[at] == Low[at])
-            {
-                while(Stack.top()!=at){
-                    string node = Stack.top();
-                    Stack.pop();
-                    on_stack[node] = true;
-                    Low[node] = Ids[at];
-                }
-                scc_count++;
-            }
-        }
-
-};*/
 
 class Graph{
     public:
@@ -98,7 +33,7 @@ class Graph{
             for(auto v: Graph){
                 if(Ids[v.first] == -1){
                     id = -1;
-                    dfs_tharjan(it->first);
+                    dfs_tharjan(v.first);
                 }
             }
         }
@@ -128,66 +63,12 @@ class Graph{
                 while(Stack.top()!=at){
                     string node = Stack.top();
                     Stack.pop();
-                    on_stack[node] = true;
+                    on_stack[node] = false;
                     Low[node] = Ids[at];
                 }
                 scc_count++;
             }
         }
-        
-       /*
-        void dfs_tharjan(string at)
-        {
-            string o_at = at;
-            stack<string> dfs;
-            vector<string> updated;
-            int min_l = 0;
-            dfs.push(at);
-            while(dfs.empty() == false){
-                at = dfs.top();
-                dfs.pop();
-                Stack.push(at);
-                on_stack[at] = true;
-                id = id + 1;
-                Ids[at] = id;
-                Low[at] = id;
-                //Visit all neighbours & min low-linkon callback
-                for(auto to : Graph[at]){
-                    if (Ids[to] == -1){
-                        dfs.push(to);
-                        updated.push_back(to);
-                        //dfs_tharjan(to);
-                        //Low[at] = min(Low[at], Low[to]);
-                        continue;
-                    } 
-                    if (on_stack[to]){
-                        Low[at] = min(Low[at], Low[to]);
-                    }
-                }
-                //id = id - 1;
-            }
-            for (auto up : updated)
-            {
-                min_l = min(min_l, Low[up]);
-            }
-            for (auto up : updated)
-            {
-                Low[up] = min_l;
-            }
-            at = o_at;
-            //After exploring all neighbors
-            if (Ids[at] == Low[at])
-            {
-                while(Stack.top()!=at){
-                    string node = Stack.top();
-                    Stack.pop();
-                    on_stack[node] = true;
-                    Low[node] = Ids[at];
-                }
-                scc_count++;
-            }
-        }//at 1
-        */
 };
 
 class ReaderFiles
@@ -327,17 +208,28 @@ class ReaderFiles
                         vector<string> values = split(line);
                         for (int i = 1; i < values.size() ; i++)
                         {
-                            vertices_circles.insert(values[i]);
+                            if (name == values[i])
+                            {
+                                continue;
+                            }
+                            string idx;
+                            add_vertice(values[i]);
+                            add_edge(name, values[i]);
+                        }
+                        for (int i = 1; i < values.size() ; i++)
+                        {
+                            for (int j = 1; j < values.size() ; j++)
+                            {
+                                if (values[i] != values[j])
+                                {
+                                    add_edge(values[i], values[j]);
+                                }
+                            }
                         }
                         continue;
                     }
-                    if (type_file == "feat")
-                    {
-                        vector<string> values = split(line, ' ');
-                        vertices_feat.insert(values[0]);
-                        continue;
-                    }
                     */
+                   
                 }
                 files = files + 1;
                 /*
@@ -363,217 +255,20 @@ int main(){
     reader.get_files("list.txt");
     reader.load_graph();
     cout<<"Se capto "<<reader.Graph.Graph.size()<<" usuarios."<<endl;
-    cout<<"La cantidad de componentes conexas es de "<<endl;
     reader.Graph.realize_tharjan();
-    cout<<reader.Graph.scc_count<<endl;
-    ///cout<<reader.get_comp_conexes()<<endl;
+    cout<<"La cantidad de componentes conexas es de "<<reader.Graph.scc_count<<"."<<endl;
     return 0;
 }
 
+///g++ -O2 -std=c++11 -Wall -Wl,--stack=4194304 example5.cpp -o example.exe
+//4MB
+
+
+
+
 
 /*
-'''
-
-#https://github.com/morris821028/UVa/blob/master/volume113/11324%20-%20The%20Largest%20Clique.cpp
-
-def tarjan(N, S, T, edges):
-    cnt = 0
-    bridges = []
-    visit = [0 for i in range(N)]
-    low = [N + 1 for i in range(N)]
-    ret = [False for i in range(N)]
-    q = [0 for i in range(N + 1)]
-    q[0] = (S, -1, -1)
-    top = 0
-    while top >= 0:
-        i, father, v = q[top]
-        if v == -1:
-            ret[i] = (i == T)
-            cnt = cnt + 1
-            visit[i] = low[i] = cnt
-        elif v < len(edges[i]):
-            j, w, flag = edges[i][v]
-            if flag:
-                if j == q[top + 1][0]:
-                    ret[i] = ret[i] or ret[j]
-                    if ret[i]: low[i] = min(low[i], low[j])
-        v += 1
-        q[top] = (i, father, v)
-        if v < len(edges[i]):
-            j, w, flag = edges[i][v]
-            if flag:
-                if not visit[j]:
-                    top += 1
-                    q[top] = (j, i, -1)
-            else:
-                if j != father and visit[j]:
-                    low[i] = min(low[i], visit[j])
-        else:
-            if low[i] == visit[i] and ret[i]:
-                if father >=0:
-                    bridges.append((father, i))
-            top -= 1
-
-    #print "visit", visit
-    #print "low", low
-    #print "ret", ret
-    return bridges
-    
-g = []
-g.append([])
-g.append([1, 2])
-g.append([2, 1])
-g.append([3, 4])
-g.append([4, 3])
-
-vertices = [1,2,3,4]
-#print(scc2(g, vertices))
-
-'''
-*/
-
-/*
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <algorithm>
-#include <fstream>
-#include <string>
-#include <map>
-#include <set>
-#include <cstring>
-using namespace std;
-
-class Graph{
-    public:
-        map<string, set<string>> Graph;
-        vector<bool> Visited;
-        map<string,int> Ids;
-        map<string,int> Low;
-        stack<string> Stack;
-        map<string, bool> on_stack;
-        int id;
-        int scc_count = 0;
-        void realize_tharjan(){
-            id = 0;
-            scc_count = 0;
-            for (auto v : Graph)
-            {
-                on_stack.insert(pair<string, bool>(v.first, false));
-                Ids.insert(pair<string, int>(v.first, -1));
-                Low.insert(pair<string, int>(v.first, -1));
-            }
-            auto it = Graph.begin();
-            for(auto v: Graph){
-                if(Ids[v.first] == -1){
-                    id = -1;
-                    dfs_tharjan(it->first);
-                }
-            }
-        }
-        
-        void dfs_tharjan(string at)
-        {
-            Stack.push(at);
-            on_stack[at] = true;
-            id = id + 1;
-            Ids[at] = id;
-            Low[at] = id;
-            //Visit all neighbours & min low-linkon callback
-            for(auto to : Graph[at]){
-                if (Ids[to] == -1){
-                    dfs_tharjan(to);
-                    Low[at] = min(Low[at], Low[to]);
-                    continue;
-                } 
-                if (on_stack[to]){
-                    Low[at] = min(Low[at], Low[to]);
-                }
-            }
-            //After exploring all neighbors
-            if (Ids[at] == Low[at])
-            {
-                //cout<<"at "<<at<<endl;
-                while(Stack.top()!=at){
-                    string node = Stack.top();
-                    Stack.pop();
-                    on_stack[node] = true;
-                    Low[node] = Ids[at];
-                }
-                scc_count++;
-            }
-        }
-        
-        void dfsd_tharjan(string at)
-        {
-            string o_at = at;
-            stack<string> dfs;
-            vector<string> updated;
-            int min_l = 0;
-            dfs.push(at);
-            while(dfs.empty() == false){
-                at = dfs.top();
-                dfs.pop();
-                Stack.push(at);
-                on_stack[at] = true;
-                id = id + 1;
-                Ids[at] = id;
-                Low[at] = id;
-                //Visit all neighbours & min low-linkon callback
-                for(auto to : Graph[at]){
-                    if (Ids[to] == -1){
-                        dfs.push(to);
-                        updated.push_back(to);
-                        //dfs_tharjan(to);
-                        //Low[at] = min(Low[at], Low[to]);
-                        continue;
-                    } 
-                    if (on_stack[to]){
-                        Low[at] = min(Low[at], Low[to]);
-                    }
-                }
-                //id = id - 1;
-            }
-            for (auto up : updated)
-            {
-                min_l = min(min_l, Low[up]);
-            }
-            for (auto up : updated)
-            {
-                Low[up] = min_l;
-            }
-            at = o_at;
-            //After exploring all neighbors
-            if (Ids[at] == Low[at])
-            {
-                while(Stack.top()!=at){
-                    string node = Stack.top();
-                    Stack.pop();
-                    on_stack[node] = true;
-                    Low[node] = Ids[at];
-                }
-                scc_count++;
-            }
-        }//at 1
-        
-};
-
-int main()
-{
-    
-    #4 2
-    #1 2 2
-    #3 4 2
-    
-    Graph graph;
-    graph.Graph.insert(pair<string, set<string>>("1",set<string>({"2","3"})));
-    graph.Graph.insert(pair<string, set<string>>("2",set<string>({"1"})));
-    graph.Graph.insert(pair<string, set<string>>("3",set<string>({})));
-
-    //graph.Graph.insert(pair<string, set<string>>("8",set<string>({})));
-    //graph.Graph.insert(pair<string, set<string>>("9",set<string>({"1"})));
-    graph.realize_tharjan();
-    cout<<graph.scc_count<<endl;
-    return 0;
-}
+Se leyo 792 archivos.
+Se capto 72271 usuarios.
+La cantidad de componentes conexas es de 2431.
 */

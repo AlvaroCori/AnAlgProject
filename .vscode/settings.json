@@ -8,7 +8,8 @@
         "set": "cpp",
         "string": "cpp",
         "xtree": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "ostream": "cpp"
     },
     "C_Cpp.intelliSenseMemoryLimit": 6096
 }
